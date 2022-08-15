@@ -1,0 +1,306 @@
+<html>
+   
+    <head>
+          <title>Cadasto de vendas</title>
+        
+            <style>
+        table {
+            width: 300px;
+            font: 17px Calibri;
+        }
+        table,
+        th,
+        td {
+            border: solid 1px #DDD;
+            border-collapse: collapse;
+            padding: 2px 3px;
+            text-align: center;
+        }
+    </style>
+             <!-- Script CSS online para dar uma beleza ao site -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+          <meta charset="utf-8">
+    </head>
+
+    
+    <body>
+    
+     <!-- Script Ajax necessÃ¡rio para poder criar a tabela -->
+            <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js" type="text/javascript"></script>
+    
+     <div class="container">
+            
+            <h2>Cadastro de vendas</h2>            
+  
+         <br>
+            <!-- INICIO DO FORMULARIO -->
+            <label>Nome do produto:</label> <br>
+            <select id="produto">
+                <option>-----------</option>
+                <option>Produto A</option>
+				<option>Produto B</option>
+			    <option>Produto C</option>               
+                <option>Produto D</option>
+                <option>Produto E</option>
+				 <option>Produto F</option>
+				 <option>Produto G</option>
+               
+            </select><br>
+            <label>referência</label> <br>
+            <select id="referencia">
+                <option>-----------</option>
+                <option>001</option>
+				<option>002</option>
+			    <option>003</option>               
+                <option>004</option>
+                <option>005</option>
+				 <option>006</option>
+				 <option>007</option>
+               
+            </select><br>
+            <!-- busca altomatica a UF-->
+             <!-- Adicionando Javascript -->
+    <script>
+    
+        function limpa_formulário_cep() {
+                //Limpa valores do formulário de cep.
+                document.getElementById('rua').value=("");
+                document.getElementById('bairro').value=("");
+                document.getElementById('cidade').value=("");
+                document.getElementById('uf').value=("");
+                document.getElementById('ibge').value=("");
+        }
+    
+        function meu_callback(conteudo) {
+            if (!("erro" in conteudo)) {
+                //Atualiza os campos com os valores.
+                document.getElementById('rua').value=(conteudo.logradouro);
+                document.getElementById('bairro').value=(conteudo.bairro);
+                document.getElementById('cidade').value=(conteudo.localidade);
+                document.getElementById('uf').value=(conteudo.uf);
+                document.getElementById('ibge').value=(conteudo.ibge);
+            } //end if.
+            else {
+                //CEP não Encontrado.
+                limpa_formulário_cep();
+                alert("CEP não encontrado.");
+            }
+        }
+            
+        function pesquisacep(valor) {
+    
+            //Nova variável "cep" somente com dígitos.
+            var cep = valor.replace(/\D/g, '');
+    
+            //Verifica se campo cep possui valor informado.
+            if (cep != "") {
+    
+                //Expressão regular para validar o CEP.
+                var validacep = /^[0-9]{8}$/;
+    
+                //Valida o formato do CEP.
+                if(validacep.test(cep)) {
+    
+                    //Preenche os campos com "..." enquanto consulta webservice.
+                    document.getElementById('rua').value="...";
+                    document.getElementById('bairro').value="...";
+                    document.getElementById('cidade').value="...";
+                    document.getElementById('uf').value="...";
+                    document.getElementById('ibge').value="...";
+    
+                    //Cria um elemento javascript.
+                    var script = document.createElement('script');
+    
+                    //Sincroniza com o callback.
+                    script.src = 'https://viacep.com.br/ws/'+ cep + '/json/?callback=meu_callback';
+    
+                    //Insere script no documento e carrega o conteúdo.
+                    document.body.appendChild(script);
+    
+                } //end if.
+                else {
+                    //cep é inválido.
+                    limpa_formulário_cep();
+                    alert("Formato de CEP inválido.");
+                }
+            } //end if.
+            else {
+                //cep sem valor, limpa formulário.
+                limpa_formulário_cep();
+            }
+        };
+    
+        </script>
+        </head>
+    
+        <body>
+        <!-- Inicio do formulario -->
+          <form method="get" action=".">
+            <label>Cep:
+            <input name="cep" type="text" id="cep" value="" size="10" maxlength="9"
+                   onblur="pesquisacep(this.value);" /></label><br />
+            <label>Rua:
+            <input name="rua" type="text" id="rua" size="60" /></label><br />
+            <label>Bairro:
+            <input name="bairro" type="text" id="bairro" size="40" /></label><br />
+            <label>Cidade:
+            <input name="cidade" type="text" id="cidade" size="40" /></label><br />
+            <label>Estado:
+            <input name="uf" type="text" id="uf" size="2" /></label><br />
+            <label>IBGE:
+            <input name="ibge" type="text" id="ibge" size="8" /></label><br />
+          </form>             
+            <label>Data</label><br>
+            <input type="date" name ="txtdata"  class="form-group" id="pwd"/>  <br>
+
+            <!-- Fim do formulario-->     
+
+      
+       <br>
+         
+          <button type="button" onclick="inserir()" id="btnCadastrar" class="btn btn-success">Enviar</button>      
+          <button type="button"  onclick="buscaVendasl()" id="btnBuscaGeral"class="btn btn-primary">Mostrar vendas</button>
+          <br><br>
+    
+        
+              <br><br><br>
+            <table style="width:100%" id="myTable" >
+                <tr>
+                    <th><h1>Vendas </h1></th>                  
+                </tr>
+                
+                <tr>                 
+                    <th>Nome do produto</th>
+                    <th>Refrencia</th>
+                    <th>Preço</th>
+                    <th>Fornecedor</th>
+                </tr>
+            
+            
+                <tbody id="table_body">
+            
+                        
+                </tbody>
+           </table>
+        <br><br><br>
+        
+        
+          <script src="https://www.gstatic.com/firebasejs/5.5.6/firebase.js"></script>
+     
+       
+       
+       
+       
+       <script>
+         // Initialize Firebase  https://www.youtube.com/watch?v=SpxHVrpfGgU
+         var config = {
+           apiKey: "AIzaSyBHpTarLHzV8m0IcAEhUo17rAg95TsJib4",
+           authDomain: "mynotawesome-f750f.firebaseapp.com",
+           databaseURL: "https://mynotawesome-f750f.firebaseio.com",
+           projectId: "mynotawesome-f750f",
+           storageBucket: "mynotawesome-f750f.appspot.com",
+           messagingSenderId: "607163714508"
+         };
+         firebase.initializeApp(config);
+           
+                       
+                
+           
+           
+ //Referenciando o banco de dados
+ var refCadastro = firebase.database().ref("empresa");
+
+
+
+
+
+
+
+ //---------------------------------------------------------Inicio da funÃ§Ã£o selecionar
+ function inserir() {
+
+     
+     
+     
+     //Variaveis para pegar as informaÃ§Ãµes da pÃ¡gina HTML
+     var txtnome_produto = document.getElementById("produto").value;
+     var txtreferencia = document.getElementById("referencia").value;
+     var txtcep = document.getElementById("cep").value;
+     var txtdata = document.getElementById("data").value;       
+   
+  
+     //---------------------------------------------
+     //Insere os dados no banco
+   
+             var resultado = refCadastro.push({
+                 produto: txtproduto,
+                 referencia: txtreferencia,
+                 preco: txtpreco,
+                 fornecedor: txtfornecedor,    
+                 Cep: txtcep,    
+                 mostra: "Mostrar"             
+             });
+     
+
+  
+   alert("Mensagem enviada!");
+    window.location.reload();
+ }
+//---------------------------------------------------------Fimda funÃ§Ã£o selecionar
+
+//---------------------------------------------------------Inicio da funÃ§Ã£o Busca Geral
+function buscaGeral(){
+  
+  //----------------------------senha
+    
+    var txt;
+                      
+               //Procura por todos os nÃ³s em busca das informaÃ§Ãµes requisitadas.
+    refCadastro.on("child_added", snap=>{
+        
+        //Receendo os valores jÃ¡ adicionados no banco de dados
+        
+        //var id = snap.key;
+        
+        var nome_produto = snap.child("produto").val();
+        
+        var referencia = snap.child("referencia").val();
+        
+        var cep =snap.child("Cep").val();
+        
+        var data =snap.child("data").val();
+
+        var preco =snap.child("preco").val();
+
+        var cep =snap.child("cep").val();
+        
+     
+        if(snap.child("escola").val() == "Mostrar"){
+        
+     
+        //Adiciona tudo em uma tabela
+         $('#table_body').append("<tr><td>"+ data+"</td><td>"+ nome_produto + "</td><td>" + preco +"</td><td>" +cep+"</td><td>"+referencia +"</td></tr>");
+        }
+    });
+    
+    
+    document.getElementById("myTable").style.visibility = "visible";
+}
+           
+    s
+    
+    
+//----------------------------------------
+    
+    
+    
+           
+           
+           
+           
+            </script>
+        </div>
+    </body>
+
+
+</html>
